@@ -185,7 +185,7 @@ const handleLogin = async () => {
 
   try {
     // 模拟登录请求
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    await new Promise((resolve) => setTimeout(resolve, 200))
 
     const loginInfo = {
       loginType: loginType.value,
