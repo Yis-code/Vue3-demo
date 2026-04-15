@@ -27,6 +27,8 @@
     font-weight: 700;
     color: #667eea;
     flex-shrink: 0;
+    padding-right: 2rem;
+    border-right: 2px solid #e1e8ed;
 }
 
 .nav-logo {
@@ -39,6 +41,7 @@
     align-items: center;
     gap: 1.5rem;
     flex: 0 0 auto;
+    padding-left: 2rem;
 }
 
 .menu-item {
