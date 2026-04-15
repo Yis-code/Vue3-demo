@@ -10,8 +10,6 @@
           <a href="#" class="menu-item">首页</a>
           <a href="#" class="menu-item">B2C</a>
           <a href="#" class="menu-item">B2B</a>
-          <a href="#" class="menu-item">系统设置</a>
-          <a href="#" class="menu-item">关于</a>
         </div>
         <div class="nav-links">
           <button @click="handleLogout" class="logout-btn">退出登录</button>
