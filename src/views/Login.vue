@@ -33,18 +33,53 @@
           <p>请登录您的账户</p>
         </div>
 
+        <!-- 登录方式切换 -->
+        <div class="login-tabs">
+          <button
+              :class="['tab-btn', { active: loginType === 'phone' }]"
+              @click="loginType = 'phone'"
+          >
+            手机登录
+          </button>
+          <button
+              :class="['tab-btn', { active: loginType === 'email' }]"
+              @click="loginType = 'email'"
+          >
+            邮箱登录
+          </button>
+        </div>
+
         <form @submit.prevent="handleLogin" class="login-form">
-          <div class="form-group">
-            <label for="email">邮箱地址</label>
-            <input
-                id="email"
-                v-model="form.email"
-                type="email"
-                placeholder="请输入您的邮箱"
-                required
-                class="form-input"
-            />
-          </div>
+          <!-- 邮箱登录表单 -->
+          <template v-if="loginType === 'email'">
+            <div class="form-group">
+              <label for="email">邮箱地址</label>
+              <input
+                  id="email"
+                  v-model="form.email"
+                  type="email"
+                  placeholder="请输入您的邮箱"
+                  required
+                  class="form-input"
+              />
+            </div>
+          </template>
+
+          <!-- 手机登录表单 -->
+          <template v-else>
+            <div class="form-group">
+              <label for="phone">手机号码</label>
+              <input
+                  id="phone"
+                  v-model="form.phone"
+                  type="tel"
+                  placeholder="请输入您的手机号"
+                  required
+                  pattern="^1[3-9]\d{9}$"
+                  class="form-input"
+              />
+            </div>
+          </template>
 
           <div class="form-group">
             <label for="password">密码</label>
@@ -113,8 +148,11 @@ import {useRouter} from 'vue-router'
 
 const router = useRouter()
 
+const loginType = ref('phone') // 默认为手机登录
+
 const form = ref({
   email: '',
+  phone: '',
   password: '',
   rememberMe: false
 })
@@ -155,14 +193,23 @@ const handleLogin = async () => {
     // 模拟登录请求
     await new Promise((resolve) => setTimeout(resolve, 1500))
 
-    console.log('登录信息:', form.value)
+    const loginInfo = {
+      loginType: loginType.value,
+      password: form.value.password,
+      loginTime: new Date().toISOString()
+    }
+
+    if (loginType.value === 'email') {
+      loginInfo.email = form.value.email
+      console.log('邮箱登录信息:', loginInfo)
+    } else {
+      loginInfo.phone = form.value.phone
+      console.log('手机登录信息:', loginInfo)
+    }
 
     // 如果记住我，则保存到本地存储
     if (form.value.rememberMe) {
-      localStorage.setItem('userInfo', JSON.stringify({
-        email: form.value.email,
-        loginTime: new Date().toISOString()
-      }))
+      localStorage.setItem('userInfo', JSON.stringify(loginInfo))
     }
 
     // 保存登录状态
@@ -186,14 +233,13 @@ const handleLogin = async () => {
 }
 
 .login-container {
-  height: 100vh; /* 改为固定高度而不是最小高度 */
+  height: 100vh;
   display: flex;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  /* 确保容器占满整个视口 */
   width: 100vw;
   margin: 0;
   padding: 0;
-  overflow: hidden; /* 完全隐藏滚动 */
+  overflow: hidden;
 }
 
 /* PC端左侧边栏 */
@@ -206,8 +252,8 @@ const handleLogin = async () => {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   border-right: 1px solid rgba(255, 255, 255, 0.2);
-  height: 100vh; /* 改为固定高度 */
-  overflow-y: auto; /* 如果内容过多，允许内部滚动 */
+  height: 100vh;
+  overflow-y: auto;
 }
 
 .sidebar-content {
@@ -263,30 +309,29 @@ const handleLogin = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(16px, 2vw, 40px); /* 减少内边距 */
-  height: 100vh; /* 改为固定高度 */
-  overflow-y: auto; /* 如果内容过多，允许内部滚动 */
+  padding: clamp(16px, 2vw, 40px);
+  height: 100vh;
+  overflow-y: auto;
 }
 
 .login-card {
   background: white;
-  border-radius: clamp(16px, 2vw, 24px); /* 更小的圆角 */
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1); /* 更小的阴影 */
-  padding: clamp(16px, 3vw, 32px); /* 减少内边距 */
+  border-radius: clamp(16px, 2vw, 24px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  padding: clamp(16px, 3vw, 32px);
   width: 100%;
-  max-width: min(420px, 85vw); /* 减小最大宽度和视口占比 */
+  max-width: min(420px, 85vw);
   text-align: center;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  /* 确保卡片不会超出视口 */
   margin: 0 auto;
   box-sizing: border-box;
-  max-height: 90vh; /* 限制最大高度为视口的90% */
-  overflow-y: auto; /* 如果内容过多，允许内部滚动 */
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .logo-section {
-  margin-bottom: clamp(20px, 3vw, 32px); /* 减少logo区域间距 */
+  margin-bottom: clamp(20px, 3vw, 32px);
 }
 
 .logo {
@@ -310,33 +355,68 @@ const handleLogin = async () => {
   opacity: 0.8;
 }
 
+/* 登录方式切换标签 */
+.login-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: clamp(20px, 3vw, 32px);
+  padding: 4px;
+  background: #f0f2f5;
+  border-radius: 10px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: clamp(10px, 1.5vw, 12px);
+  border: none;
+  background: transparent;
+  color: #666;
+  font-size: clamp(14px, 1.5vw, 16px);
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+  color: #667eea;
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.tab-btn.active {
+  background: white;
+  color: #667eea;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+  font-weight: 600;
+}
+
 .login-form {
-  margin-bottom: clamp(16px, 2vw, 24px); /* 减少表单底部间距 */
+  margin-bottom: clamp(16px, 2vw, 24px);
 }
 
 .form-group {
-  margin-bottom: clamp(12px, 1.5vw, 20px); /* 减少表单项间距 */
+  margin-bottom: clamp(12px, 1.5vw, 20px);
   text-align: left;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: clamp(6px, 1vw, 8px); /* 减少标签底部间距 */
+  margin-bottom: clamp(6px, 1vw, 8px);
   font-weight: 600;
   color: #333;
-  font-size: clamp(14px, 1.5vw, 16px); /* 响应式字体大小 */
+  font-size: clamp(14px, 1.5vw, 16px);
 }
 
 .form-input {
   width: 100%;
-  padding: clamp(10px, 1.5vw, 14px) clamp(12px, 2vw, 16px); /* 减少输入框内边距 */
+  padding: clamp(10px, 1.5vw, 14px) clamp(12px, 2vw, 16px);
   border: 2px solid #e1e8ed;
-  border-radius: clamp(8px, 1.5vw, 10px); /* 更小的圆角 */
-  font-size: clamp(14px, 1.5vw, 16px); /* 响应式字体大小 */
+  border-radius: clamp(8px, 1.5vw, 10px);
+  font-size: clamp(14px, 1.5vw, 16px);
   transition: all 0.3s ease;
   box-sizing: border-box;
   background: #f8fafc;
-  line-height: 1.2; /* 减少行高 */
+  line-height: 1.2;
 }
 
 .form-input:focus {
@@ -354,8 +434,8 @@ const handleLogin = async () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: clamp(12px, 2vw, 20px); /* 减少选项区域间距 */
-  font-size: clamp(12px, 1.5vw, 14px); /* 更小的字体 */
+  margin-bottom: clamp(12px, 2vw, 20px);
+  font-size: clamp(12px, 1.5vw, 14px);
 }
 
 .checkbox-label {
@@ -387,18 +467,18 @@ const handleLogin = async () => {
 
 .login-button {
   width: 100%;
-  padding: clamp(10px, 1.5vw, 12px); /* 减少按钮内边距 */
+  padding: clamp(10px, 1.5vw, 12px);
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  border-radius: clamp(8px, 1.5vw, 10px); /* 更小的圆角 */
-  font-size: clamp(14px, 1.8vw, 16px); /* 更小的字体 */
+  border-radius: clamp(8px, 1.5vw, 10px);
+  font-size: clamp(14px, 1.8vw, 16px);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-bottom: clamp(12px, 2vw, 18px); /* 减少按钮底部间距 */
+  margin-bottom: clamp(12px, 2vw, 18px);
   box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
-  line-height: 1.2; /* 减少行高 */
+  line-height: 1.2;
 }
 
 .login-button:hover:not(:disabled) {
@@ -414,7 +494,7 @@ const handleLogin = async () => {
 
 .divider {
   position: relative;
-  margin: clamp(16px, 2vw, 24px) 0; /* 减少分割线上下间距 */
+  margin: clamp(16px, 2vw, 24px) 0;
   text-align: center;
 }
 
@@ -440,25 +520,25 @@ const handleLogin = async () => {
 .social-login {
   display: flex;
   flex-direction: column;
-  gap: clamp(8px, 1.5vw, 12px); /* 减少社交登录按钮间距 */
-  margin-bottom: clamp(12px, 2vw, 20px); /* 减少底部间距 */
+  gap: clamp(8px, 1.5vw, 12px);
+  margin-bottom: clamp(12px, 2vw, 20px);
 }
 
 .social-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(8px, 1vw, 10px); /* 减少图标和文字间距 */
-  padding: clamp(8px, 1.5vw, 12px) clamp(10px, 2vw, 14px); /* 减少按钮内边距 */
-  border: 1px solid #e1e8ed; /* 更细的边框 */
-  border-radius: clamp(6px, 1vw, 8px); /* 更小的圆角 */
+  gap: clamp(8px, 1vw, 10px);
+  padding: clamp(8px, 1.5vw, 12px) clamp(10px, 2vw, 14px);
+  border: 1px solid #e1e8ed;
+  border-radius: clamp(6px, 1vw, 8px);
   background: white;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: clamp(12px, 1.5vw, 14px); /* 更小的字体 */
+  font-size: clamp(12px, 1.5vw, 14px);
   font-weight: 600;
   color: #333;
-  line-height: 1.2; /* 减少行高 */
+  line-height: 1.2;
 }
 
 .social-button:hover {
@@ -469,7 +549,7 @@ const handleLogin = async () => {
 
 .signup-link {
   color: #666;
-  font-size: clamp(12px, 1.5vw, 14px); /* 更小的字体 */
+  font-size: clamp(12px, 1.5vw, 14px);
   font-weight: 500;
 }
 
@@ -504,7 +584,7 @@ const handleLogin = async () => {
 @media (max-width: 768px) {
   .login-container {
     flex-direction: column;
-    height: 100vh; /* 确保移动端也使用固定高度 */
+    height: 100vh;
   }
 
   .login-sidebar {
@@ -512,23 +592,23 @@ const handleLogin = async () => {
   }
 
   .login-main {
-    padding: clamp(10px, 2vw, 20px); /* 更小的内边距 */
-    height: 100vh; /* 改为固定高度 */
+    padding: clamp(10px, 2vw, 20px);
+    height: 100vh;
     min-height: auto;
   }
 
   .login-card {
-    padding: clamp(12px, 3vw, 20px); /* 更紧凑的内边距 */
-    border-radius: clamp(12px, 2vw, 16px); /* 更小的圆角 */
-    max-height: 95vh; /* 稍微增加高度占比 */
+    padding: clamp(12px, 3vw, 20px);
+    border-radius: clamp(12px, 2vw, 16px);
+    max-height: 95vh;
   }
 
   .logo-section h1 {
-    font-size: clamp(20px, 4vw, 24px); /* 更小的标题 */
+    font-size: clamp(20px, 4vw, 24px);
   }
 
   .logo-section p {
-    font-size: clamp(12px, 2vw, 14px); /* 更小的副标题 */
+    font-size: clamp(12px, 2vw, 14px);
   }
 }
 
@@ -549,5 +629,15 @@ const handleLogin = async () => {
     font-size: 16px;
     padding: 14px;
   }
+
+  .login-tabs {
+    gap: 8px;
+  }
+
+  .tab-btn {
+    font-size: 14px;
+    padding: 10px;
+  }
 }
+
 </style>
