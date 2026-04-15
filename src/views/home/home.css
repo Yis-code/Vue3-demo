@@ -10,12 +10,13 @@
 }
 
 .navbar {
-    max-width: 1200px;
-    margin: 0 auto;
+    max-width: 100%;
+    margin: 0;
     padding: 1rem 2rem;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
+    gap: 2rem;
 }
 
 .nav-brand {
@@ -25,6 +26,7 @@
     font-size: 1.5rem;
     font-weight: 700;
     color: #667eea;
+    flex-shrink: 0;
 }
 
 .nav-logo {
@@ -32,10 +34,34 @@
     height: 40px;
 }
 
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex: 0 0 auto;
+}
+
+.menu-item {
+    color: #333;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    white-space: nowrap;
+}
+
+.menu-item:hover {
+    color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+}
+
 .nav-links {
     display: flex;
     align-items: center;
-    gap: 2rem;
+    gap: 1rem;
+    flex-shrink: 0;
+    margin-left: auto;
 }
 
 .nav-link {

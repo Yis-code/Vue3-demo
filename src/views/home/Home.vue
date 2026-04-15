@@ -6,9 +6,14 @@
           <img src="../../assets/logo.svg" alt="Vue Logo" class="nav-logo"/>
           <span>Vue 3 管理系统</span>
         </div>
+        <div class="nav-menu">
+          <a href="#" class="menu-item">首页</a>
+          <a href="#" class="menu-item">B2C</a>
+          <a href="#" class="menu-item">B2B</a>
+          <a href="#" class="menu-item">系统设置</a>
+          <a href="#" class="menu-item">关于</a>
+        </div>
         <div class="nav-links">
-          <a href="#" class="nav-link">首页</a>
-          <a href="#" class="nav-link">关于</a>
           <button @click="handleLogout" class="logout-btn">退出登录</button>
         </div>
       </nav>
